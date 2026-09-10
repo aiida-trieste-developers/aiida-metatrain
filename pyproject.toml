@@ -1,0 +1,130 @@
+[build-system]
+# build the package with [flit](https://flit.readthedocs.io)
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "aiida-metatrain"
+dynamic = ["version"]
+description = "AiiDA workchain to run training of neural networks with metatrain."
+authors = [{name = "Nataliia Manko"}, {name = "Davide Bidoggia"}, {name = "Antimo Marrazzo"}, {name = "Maria Peressi"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta",
+    "Framework :: AiiDA"
+]
+keywords = ["aiida", "workchain"]
+requires-python = ">=3.7"
+dependencies = [
+    "aiida-core>=2.6.2,<3",
+    "aiida-trainspot >= 2.0.0",
+]
+
+[project.urls]
+Source = "https://github.com/aiida-trieste-developers/aiida-metatrain"
+
+
+
+[project.entry-points.'aiida.workflows']
+"metatrain.base"        = "aiida_metatrain.workflows.base:MetaTrainWorkChain"
+
+
+[project.entry-points.'aiida.calculations']
+"metatrain"        = "aiida_metatrain.calculations.train:MetaTrainCalculation"
+
+[project.entry-points.'aiida.parsers']
+"metatrain"        = "aiida_metatrain.parsers.train:MetaBaseParser"
+
+
+[project.optional-dependencies]
+docs = [
+    "aiida-core~=2.5",
+    "docutils",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx-book-theme",
+    "sphinx-click",
+    "sphinxcontrib-contentui",
+    "sphinxcontrib-details-directive",
+    "furo",
+    "markupsafe"
+]
+
+[tool.flit.module]
+name = "aiida_metatrain"
+
+[tool.flit.sdist]
+exclude = [
+    "docs/",
+    "tests/",
+]
+
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore:Object of type .* not in session, .* operation along .* will not proceed:sqlalchemy.exc.SAWarning",
+    "ignore:Creating AiiDA configuration folder.*:UserWarning",
+    "ignore::DeprecationWarning:frozendict:",
+    "ignore::DeprecationWarning:pkg_resources:",
+    "ignore::DeprecationWarning:sqlalchemy_utils:",
+]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py313"
+
+format.quote-style = "double"
+format.indent-style = "space"
+format.skip-magic-trailing-comma = false
+format.line-ending = "lf"
+
+fix = true
+show-fixes = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "D", "PL"]
+
+ignore = [
+    "PLR0915",  # Too many statements
+    "PLR0912",  # Too many branches
+    "PLR0913",  # Too many arguments
+    "D205",    # 1 blank line required between summary line and description
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = false
+combine-as-imports = true
+lines-between-types = 1
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist =
+    py{38,39,310,311,312,313}
+    py38-pre-commit
+
+[testenv]
+description = Run the pytest tests
+usedevelop=True
+extras = tests
+commands = pytest {posargs}
+
+[testenv:py38-pre-commit]
+description = Run Ruff and pre-commit checks
+extras =
+    tests
+    pre-commit
+commands =
+    pre-commit run --all-files
+"""
